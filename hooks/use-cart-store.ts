@@ -17,6 +17,8 @@ const initialState: Cart = {
 interface CartState {
   cart: Cart; //state of cart
   addItem: (item: OrderItem, quantity: number) => Promise<string>; //add item to cart, return Promise<string> (clientId of product).
+  updateItem: (item: OrderItem, quantity: number) => Promise<void>; //update item in cart, return Promise<void> (clientId of product).
+  removeItem: (item: OrderItem) => void; //remove item from cart from
 }
 
 const useCartStore = create(
@@ -25,6 +27,13 @@ const useCartStore = create(
     (set, get) => ({
       cart: initialState,
 
+      /**
+       * Add item to cart, return Promise<string> (clientId of product)
+       * @param {OrderItem} item - item to add to cart
+       * @param {number} quantity - quantity of item to add
+       * @throws {Error} if item is out of stock
+       * @returns {Promise<string>} clientId of added item
+       */
       addItem: async (item: OrderItem, quantity: number) => {
         const { items } = get().cart; //get list item current in cart
 
@@ -76,6 +85,50 @@ const useCartStore = create(
             x.size === item.size
         )?.clientId!;
       },
+      updateItem: async (item: OrderItem, quantity: number) => {
+        const { items } = get().cart;
+        const exist = items.find(
+          (x) =>
+            x.product === item.product &&
+            x.color === item.color &&
+            x.size === item.size
+        );
+        if (!exist) return;
+
+        const updatedCartItems = items.map((x) =>
+          x.product === item.product &&
+          x.color === item.color &&
+          x.size === item.size
+            ? { ...exist, quantity: quantity }
+            : x
+        );
+
+        set({
+          cart: {
+            ...get().cart,
+            items: updatedCartItems,
+            ...(await calcDeliveryDateAndPrice({ items: updatedCartItems })),
+          },
+        });
+      },
+      removeItem: async (item: OrderItem) => {
+        const { items } = get().cart;
+        const updatedCartItems = items.filter(
+          (x) =>
+            x.product !== item.product ||
+            x.color !== item.color ||
+            x.size !== item.size
+        );
+
+        set({
+          cart: {
+            ...get().cart,
+            items: updatedCartItems,
+            ...(await calcDeliveryDateAndPrice({ items: updatedCartItems })),
+          },
+        });
+      },
+
       init: () => set({ cart: initialState }), //reset cart initialState
     }),
     {
