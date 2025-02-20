@@ -1,6 +1,7 @@
 import { ProductInputSchema } from "@/lib/validator";
 import { z } from "zod";
 
+//z.infer auto generate TypeScript type from schema
 export type IProductInput = z.infer<typeof ProductInputSchema>;
 export type Data = {
   products: IProductInput[];
