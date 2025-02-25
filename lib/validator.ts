@@ -186,3 +186,7 @@ export const CartSchema = z.object({
   deliveryDateIndex: z.optional(z.number()),
   expectedDeliveryDate: z.optional(z.date()),
 });
+
+export const UserNameSchema = z.object({
+  name: UserName,
+});
