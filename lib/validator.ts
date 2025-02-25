@@ -63,6 +63,10 @@ export const ProductInputSchema = z.object({
     .nonnegative("Number of sales must be a non-negative number"),
 });
 
+export const ProductUpdateSchema = ProductInputSchema.extend({
+  _id: z.string(),
+});
+
 export const ShippingAddressSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   street: z.string().min(1, "Address is required"),
