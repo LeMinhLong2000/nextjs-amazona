@@ -164,6 +164,13 @@ export const UserInputSchema = z.object({
   }),
 });
 
+export const UserUpdateSchema = z.object({
+  _id: MongoId,
+  name: UserName,
+  email: Email,
+  role: UserRole,
+});
+
 export const UserSignInSchema = z.object({
   email: Email,
   password: Password,
